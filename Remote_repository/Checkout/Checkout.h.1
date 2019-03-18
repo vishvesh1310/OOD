@@ -1,0 +1,50 @@
+#pragma once
+/////////////////////////////////////////////////////////////////////
+// Checkout.h - Implements checkout functionalities of the files                  //
+// ver 1.0                                                         //
+// Vishvesh Shah, CSE687 - Object Oriented Design, Spring 2018       //
+/////////////////////////////////////////////////////////////////////
+/* Package Operations :
+*------------------ -
+This package contains function checkout for checking out a file 
+* Required Files :
+*-------------- -
+*Executive.h,Payload.h,FileSystem.h,Browse.h
+*/
+/* Maintenance History :
+*ver 1.0 : 6th Mar 2018
+* -first release
+*/
+#include "../Executive/NoSqlDb.h"
+#include "../FileSystemDemo/FileSystem.h"
+#include "../PayLoad/PayLoad.h"
+#include "../Version/Version.h"
+#include "../Checkin/Checkin.h"
+
+using namespace NoSqlDb;
+using namespace FileSystem;
+
+/*Checkout a file from remote to local repository*/
+void checkOut(std::string x)
+{
+	DbProvider dbp;
+	DbCore<PayLoad> db = dbp.db();
+	
+	std::vector<std::string> a = split(x, ':');
+	Directory::create("../Local_Repository/" + a[0]);
+	std::string source = "../Remote_repository/" + a[0] + "/" + a[2];
+	size_t lastindex = a[2].find_last_of(".");
+	std::string name1 = a[2].substr(0, lastindex);
+	std::string dest = "../Local_Repository/"+ a[0] + "/" + name1;
+	File::copy(source, dest);
+	for (auto b : db[x].children())
+	{
+		std::vector<std::string> a = split(b, ':');
+		Directory::create("../Local_Repository/" + a[0]);
+		std::string source = "../Remote_repository/" + a[0] + "/" + a[2];
+		size_t lastindex = a[2].find_last_of(".");
+		std::string name1 = a[2].substr(0, lastindex);
+		std::string dest = "../Local_Repository/" + a[0] + "/" + name1;
+		File::copy(source, dest);
+	}
+}
